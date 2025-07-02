@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { ShoppingCart, User, Search } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SearchModal from './SearchModal';
 import CartDrawer from './CartDrawer';
 import ProfileDropdown from './ProfileDropdown';
-import { products } from '../data/products';
+import { sampleProducts } from '../data/products';
 
 const Navigation = () => {
   const location = useLocation();
@@ -168,7 +167,7 @@ const Navigation = () => {
       <SearchModal
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
-        products={products}
+        products={sampleProducts}
       />
 
       <CartDrawer
