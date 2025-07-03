@@ -46,7 +46,7 @@ export const useOrders = () => {
         created_at: order.created_at || '',
         total: order.total,
         status: order.status || 'processing',
-        items: Array.isArray(order.items) ? order.items as OrderItem[] : []
+        items: Array.isArray(order.items) ? (order.items as unknown as OrderItem[]) : []
       }));
 
       setOrders(transformedOrders);
