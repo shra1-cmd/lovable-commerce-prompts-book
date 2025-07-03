@@ -24,10 +24,10 @@ export const useProducts = () => {
 
       if (error) throw error;
 
-      // Map the data to ensure it has the stock property
+      // Map the data to ensure it has the stock property and handle missing columns
       const productsWithStock = (data || []).map(product => ({
         ...product,
-        stock: product.stock || 0
+        stock: product.stock || 0 // Default to 0 if stock column doesn't exist yet
       }));
 
       setProducts(productsWithStock);

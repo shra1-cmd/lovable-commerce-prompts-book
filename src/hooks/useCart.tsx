@@ -38,8 +38,7 @@ export const useCart = () => {
             id,
             name,
             price,
-            image_url,
-            stock
+            image_url
           )
         `)
         .eq('user_id', user.id);
@@ -52,7 +51,7 @@ export const useCart = () => {
         name: item.products?.name || '',
         price: Number(item.products?.price) || 0,
         image_url: item.products?.image_url || '',
-        stock: item.products?.stock || 0,
+        stock: 0, // Default stock to 0 for now since column may not exist
         quantity: item.quantity || 1,
       })) || [];
 
