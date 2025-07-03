@@ -6,11 +6,12 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CartItem {
   id: string;
-  name: string;
+  title: string;
   price: number;
-  imageUrl: string;
+  image_url: string;
   quantity: number;
   product_id: string;
+  stock: number;
 }
 
 export const useCart = () => {
@@ -35,9 +36,10 @@ export const useCart = () => {
           product_id,
           products (
             id,
-            name,
+            title,
             price,
-            image_url
+            image_url,
+            stock
           )
         `)
         .eq('user_id', user.id);
@@ -47,9 +49,10 @@ export const useCart = () => {
       const formattedItems = data?.map(item => ({
         id: item.id,
         product_id: item.product_id,
-        name: item.products?.name || '',
+        title: item.products?.title || '',
         price: Number(item.products?.price) || 0,
-        imageUrl: item.products?.image_url || '',
+        image_url: item.products?.image_url || '',
+        stock: item.products?.stock || 0,
         quantity: item.quantity || 1,
       })) || [];
 
@@ -77,34 +80,18 @@ export const useCart = () => {
     }
 
     try {
-      // Check if item already exists in cart
-      const { data: existingItem } = await supabase
+      // Use upsert to handle duplicates with the unique constraint
+      const { error } = await supabase
         .from('cart')
-        .select('id, quantity')
-        .eq('user_id', user.id)
-        .eq('product_id', productId)
-        .single();
+        .upsert({
+          user_id: user.id,
+          product_id: productId,
+          quantity: 1,
+        }, {
+          onConflict: 'user_id,product_id'
+        });
 
-      if (existingItem) {
-        // Update quantity
-        const { error } = await supabase
-          .from('cart')
-          .update({ quantity: existingItem.quantity + 1 })
-          .eq('id', existingItem.id);
-
-        if (error) throw error;
-      } else {
-        // Insert new item
-        const { error } = await supabase
-          .from('cart')
-          .insert({
-            user_id: user.id,
-            product_id: productId,
-            quantity: 1,
-          });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       await fetchCart();
       toast({
@@ -124,7 +111,11 @@ export const useCart = () => {
   };
 
   const updateQuantity = async (cartId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
+    if (newQuantity < 1) {
+      // Remove item if quantity becomes 0
+      await removeFromCart(cartId);
+      return;
+    }
 
     try {
       const { error } = await supabase

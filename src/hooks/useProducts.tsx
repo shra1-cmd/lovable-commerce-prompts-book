@@ -4,10 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
   id: string;
-  name: string;
+  title: string;
   description: string;
   price: number;
   image_url: string;
+  stock: number;
 }
 
 export const useProducts = () => {

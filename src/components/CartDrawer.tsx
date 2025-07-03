@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 
 interface CartItem {
   id: string;
-  name: string;
+  title: string;
   price: number;
-  imageUrl: string;
+  image_url: string;
   quantity: number;
+  stock: number;
 }
 
 interface CartDrawerProps {
@@ -32,12 +33,14 @@ const CartDrawer = ({
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return; // Disable decreasing below 1
-    if (newQuantity > 10) {
-      // Show stock limit error (simplified)
-      alert('Stock limit reached');
+    if (newQuantity < 0) return;
+    
+    const item = cartItems.find(item => item.id === id);
+    if (item && newQuantity > item.stock) {
+      alert(`Only ${item.stock} items available in stock`);
       return;
     }
+    
     onUpdateQuantity(id, newQuantity);
   };
 
@@ -66,18 +69,18 @@ const CartDrawer = ({
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <img 
-                      src={item.imageUrl} 
-                      alt={item.name} 
+                      src={item.image_url} 
+                      alt={item.title} 
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div className="flex-1">
-                      <h4 className="font-medium">{item.name}</h4>
+                      <h4 className="font-medium">{item.title}</h4>
                       <p className="text-sm text-gray-500">${item.price}</p>
+                      <p className="text-xs text-gray-400">Stock: {item.stock}</p>
                       <div className="flex items-center space-x-2 mt-2">
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                           className="p-1 hover:bg-gray-200 rounded"
-                          disabled={item.quantity <= 1}
                         >
                           <Minus className="h-4 w-4" />
                         </button>
@@ -85,6 +88,7 @@ const CartDrawer = ({
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                           className="p-1 hover:bg-gray-200 rounded"
+                          disabled={item.quantity >= item.stock}
                         >
                           <Plus className="h-4 w-4" />
                         </button>
