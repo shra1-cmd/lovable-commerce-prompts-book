@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: string;
   name: string;
   price: number;
-  imageUrl: string;
+  image_url: string;
+  description?: string;
 }
 
 interface SearchModalProps {
@@ -21,6 +23,7 @@ const SearchModal = ({ isOpen, onClose, products }: SearchModalProps) => {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showValidation, setShowValidation] = useState(false);
+  const navigate = useNavigate();
 
   const popularProducts = products.slice(0, 3);
 
@@ -60,8 +63,7 @@ const SearchModal = ({ isOpen, onClose, products }: SearchModalProps) => {
         setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
       } else if (e.key === 'Enter' && selectedIndex >= 0) {
         e.preventDefault();
-        // Handle product selection here
-        console.log('Selected product:', searchResults[selectedIndex]);
+        handleProductClick(searchResults[selectedIndex]);
       }
     };
 
@@ -75,6 +77,11 @@ const SearchModal = ({ isOpen, onClose, products }: SearchModalProps) => {
     setSelectedIndex(-1);
     setShowValidation(false);
     onClose();
+  };
+
+  const handleProductClick = (product: Product) => {
+    handleClose();
+    navigate(`/product/${product.id}`);
   };
 
   return (
@@ -106,8 +113,12 @@ const SearchModal = ({ isOpen, onClose, products }: SearchModalProps) => {
                 <h3 className="font-semibold mb-2">Popular Products:</h3>
                 <div className="space-y-2">
                   {popularProducts.map((product) => (
-                    <div key={product.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                      <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                    <div 
+                      key={product.id} 
+                      className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                      onClick={() => handleProductClick(product)}
+                    >
+                      <img src={product.image_url} alt={product.name} className="w-10 h-10 object-cover rounded" />
                       <div className="flex-1">
                         <p className="font-medium">{product.name}</p>
                         <p className="text-sm text-gray-500">${product.price}</p>
@@ -127,9 +138,9 @@ const SearchModal = ({ isOpen, onClose, products }: SearchModalProps) => {
                   className={`flex items-center space-x-3 p-3 cursor-pointer rounded-lg ${
                     index === selectedIndex ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
                   }`}
-                  onClick={() => console.log('Selected product:', product)}
+                  onClick={() => handleProductClick(product)}
                 >
-                  <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                  <img src={product.image_url} alt={product.name} className="w-12 h-12 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium">{product.name}</p>
                     <p className="text-sm text-gray-500">${product.price}</p>

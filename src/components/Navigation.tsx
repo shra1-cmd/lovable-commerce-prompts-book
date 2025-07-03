@@ -1,54 +1,28 @@
+
 import React, { useState } from 'react';
-import { ShoppingCart, User, Search } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Search } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import SearchModal from './SearchModal';
 import CartDrawer from './CartDrawer';
 import ProfileDropdown from './ProfileDropdown';
-import { sampleProducts } from '../data/products';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
+import { useProducts } from '@/hooks/useProducts';
 
 const Navigation = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   
   // Modal/Drawer states
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   
-  // Mock data - replace with actual state management
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [cartItems, setCartItems] = useState([
-    {
-      id: '1',
-      name: 'Wireless Headphones',
-      price: 99.99,
-      imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop',
-      quantity: 2
-    },
-    {
-      id: '2',
-      name: 'Smart Watch',
-      price: 299.99,
-      imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop',
-      quantity: 1
-    }
-  ]);
-
-  const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // Auth and cart hooks
+  const { user, signOut } = useAuth();
+  const { cartItems, cartItemCount, updateQuantity, removeFromCart } = useCart();
+  const { products } = useProducts();
 
   const isActive = (path: string) => {
     return location.pathname === path;
-  };
-
-  const handleUpdateQuantity = (id: string, quantity: number) => {
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const handleRemoveItem = (id: string) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
   const handleCheckout = () => {
@@ -58,18 +32,15 @@ const Navigation = () => {
   };
 
   const handleSignIn = () => {
-    console.log('Opening sign in modal...');
-    // Handle sign in
+    window.location.href = '/auth';
   };
 
   const handleSignUp = () => {
-    console.log('Opening sign up modal...');
-    // Handle sign up
+    window.location.href = '/auth';
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    navigate('/');
+  const handleLogout = async () => {
+    await signOut();
   };
 
   const handleProfile = () => {
@@ -78,7 +49,7 @@ const Navigation = () => {
   };
 
   const handleOrders = () => {
-    navigate('/orders');
+    window.location.href = '/orders';
   };
 
   return (
@@ -151,7 +122,7 @@ const Navigation = () => {
               </button>
               
               <ProfileDropdown
-                isLoggedIn={isLoggedIn}
+                isLoggedIn={!!user}
                 onSignIn={handleSignIn}
                 onSignUp={handleSignUp}
                 onLogout={handleLogout}
@@ -167,15 +138,15 @@ const Navigation = () => {
       <SearchModal
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
-        products={sampleProducts}
+        products={products}
       />
 
       <CartDrawer
         isOpen={isCartDrawerOpen}
         onClose={() => setIsCartDrawerOpen(false)}
         cartItems={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeFromCart}
         onCheckout={handleCheckout}
       />
     </>

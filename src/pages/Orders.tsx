@@ -3,58 +3,13 @@ import React, { useState } from 'react';
 import Navigation from '../components/Navigation';
 import { ChevronDown, ChevronRight, ShoppingCart, Eye, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-interface OrderItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-}
-
-interface Order {
-  id: string;
-  date: string;
-  total: number;
-  status: 'Delivered' | 'Processing' | 'Shipped';
-  items: OrderItem[];
-}
-
-const mockOrders: Order[] = [
-  {
-    id: '#A1B2C3',
-    date: 'June 28, 2025',
-    total: 159.98,
-    status: 'Delivered',
-    items: [
-      {
-        id: '1',
-        name: 'Wireless Headphones',
-        price: 79.99,
-        quantity: 2,
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=80&h=80&fit=crop'
-      }
-    ]
-  },
-  {
-    id: '#D4E5F6',
-    date: 'June 25, 2025',
-    total: 299.99,
-    status: 'Processing',
-    items: [
-      {
-        id: '2',
-        name: 'Smart Watch',
-        price: 299.99,
-        quantity: 1,
-        imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop'
-      }
-    ]
-  }
-];
+import { useAuth } from '@/hooks/useAuth';
+import { useOrders } from '@/hooks/useOrders';
 
 const Orders = () => {
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const { user } = useAuth();
+  const { orders, loading } = useOrders();
 
   const toggleExpanded = (orderId: string) => {
     const newExpanded = new Set(expandedOrders);
@@ -67,22 +22,76 @@ const Orders = () => {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Delivered':
+    switch (status.toLowerCase()) {
+      case 'delivered':
         return 'bg-green-500/20 text-green-600 shadow-[0_0_10px_rgba(34,197,94,0.3)]';
-      case 'Processing':
+      case 'processing':
         return 'bg-yellow-500/20 text-yellow-600 shadow-[0_0_10px_rgba(234,179,8,0.3)]';
-      case 'Shipped':
+      case 'shipped':
         return 'bg-blue-500/20 text-blue-600 shadow-[0_0_10px_rgba(59,130,246,0.3)]';
       default:
         return 'bg-gray-500/20 text-gray-600';
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   const handleReorder = (orderId: string) => {
-    // Toast notification would be implemented here
     console.log(`Reordering items from ${orderId}`);
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Navigation />
+        
+        <div className="bg-gradient-to-r from-slate-900 to-blue-900 py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-5xl font-bold text-white mb-4">My Orders</h1>
+            <p className="text-xl text-gray-300 italic">Track your past purchases</p>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center py-20">
+            <div className="text-8xl mb-6">🔒</div>
+            <h3 className="text-3xl font-semibold text-gray-800 mb-4">
+              Sign in to view your orders
+            </h3>
+            <p className="text-gray-600 mb-8 text-lg">
+              Please sign in to access your order history
+            </p>
+            <Link
+              to="/auth"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-violet-500 text-white font-semibold rounded-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all duration-300 hover:scale-105"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -97,9 +106,9 @@ const Orders = () => {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {mockOrders.length > 0 ? (
+        {orders.length > 0 ? (
           <div className="space-y-6">
-            {mockOrders.map((order) => (
+            {orders.map((order) => (
               <div 
                 key={order.id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
@@ -118,22 +127,22 @@ const Orders = () => {
                           <ChevronRight className="h-5 w-5 text-gray-500" />
                         )}
                         <span className="font-mono text-lg font-semibold text-gray-800">
-                          {order.id}
+                          #{order.id.slice(0, 8)}
                         </span>
                       </div>
                       
                       <div className="text-gray-600">
-                        {order.date}
+                        {formatDate(order.created_at)}
                       </div>
                       
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(order.status)}`}>
                         {order.status}
                       </span>
                     </div>
                     
                     <div className="text-right">
                       <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
-                        ${order.total.toFixed(2)}
+                        ${Number(order.total).toFixed(2)}
                       </div>
                     </div>
                   </div>
@@ -145,8 +154,8 @@ const Orders = () => {
                     <div className="p-6">
                       <h4 className="text-lg font-semibold text-gray-800 mb-4">Order Items</h4>
                       <div className="space-y-4">
-                        {order.items.map((item) => (
-                          <div key={item.id} className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow-sm">
+                        {order.items.map((item, index) => (
+                          <div key={index} className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow-sm">
                             <img 
                               src={item.imageUrl} 
                               alt={item.name}
@@ -176,9 +185,6 @@ const Orders = () => {
                         >
                           <RotateCcw className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
                           Reorder
-                          <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                            Add all items to cart
-                          </span>
                         </button>
                         
                         <button className="flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">

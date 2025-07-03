@@ -2,11 +2,25 @@
 import React from 'react';
 import Navigation from '../components/Navigation';
 import { ShoppingCart, ArrowRight, Headphones, Home as HomeIcon, Watch } from 'lucide-react';
-import { sampleProducts } from '../data/products';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
+import { useProducts } from '@/hooks/useProducts';
 
 const Home = () => {
-  const featuredProducts = sampleProducts.slice(0, 3);
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { products } = useProducts();
+  
+  const featuredProducts = products.slice(0, 3);
+
+  const handleAddToCart = async (productId: string) => {
+    if (!user) {
+      window.location.href = '/auth';
+      return;
+    }
+    await addToCart(productId);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -35,9 +49,6 @@ const Home = () => {
                 Shop Now
                 <ArrowRight className="inline-block ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <button className="px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                Learn More
-              </button>
             </div>
           </div>
         </div>
@@ -60,7 +71,7 @@ const Home = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative h-64 bg-gray-100 overflow-hidden">
                 <img 
-                  src={product.imageUrl} 
+                  src={product.image_url} 
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
@@ -72,10 +83,13 @@ const Home = () => {
                   <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
                     ${product.price}
                   </span>
-                  <button className="group/btn relative px-4 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 hover:scale-105">
+                  <button 
+                    onClick={() => handleAddToCart(product.id)}
+                    className="group/btn relative px-4 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 hover:scale-105"
+                  >
                     <ShoppingCart className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                    <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-now">
-                      Grab it now →
+                    <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-nowrap">
+                      {user ? 'Add to cart' : 'Sign in to add'}
                     </span>
                   </button>
                 </div>
@@ -99,8 +113,9 @@ const Home = () => {
               { icon: HomeIcon, name: "Smart Home", count: "8 Products" },
               { icon: Watch, name: "Accessories", count: "15 Products" }
             ].map((category, index) => (
-              <div 
+              <Link
                 key={category.name}
+                to="/products"
                 className="group relative bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-violet-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -110,7 +125,7 @@ const Home = () => {
                 <div className="mt-4 text-blue-400 group-hover:text-blue-300 transition-colors">
                   <span className="text-sm">Jump to category →</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
