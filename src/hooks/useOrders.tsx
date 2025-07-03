@@ -40,7 +40,16 @@ export const useOrders = () => {
 
       if (error) throw error;
 
-      setOrders(data || []);
+      // Transform the data to match our Order interface
+      const transformedOrders: Order[] = (data || []).map(order => ({
+        id: order.id,
+        created_at: order.created_at || '',
+        total: order.total,
+        status: order.status || 'processing',
+        items: Array.isArray(order.items) ? order.items as OrderItem[] : []
+      }));
+
+      setOrders(transformedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
