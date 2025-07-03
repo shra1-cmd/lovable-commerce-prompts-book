@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
   id: string;
-  title: string;
+  name: string;
   description: string;
   price: number;
   image_url: string;
@@ -24,7 +24,13 @@ export const useProducts = () => {
 
       if (error) throw error;
 
-      setProducts(data || []);
+      // Map the data to ensure it has the stock property
+      const productsWithStock = (data || []).map(product => ({
+        ...product,
+        stock: product.stock || 0
+      }));
+
+      setProducts(productsWithStock);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {

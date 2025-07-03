@@ -9,7 +9,7 @@ import { useCart } from '@/hooks/useCart';
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('title');
+  const [sortBy, setSortBy] = useState('name');
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 1500]);
 
@@ -19,7 +19,7 @@ const Products = () => {
 
   const filteredProducts = useMemo(() => {
     let filtered = products.filter(product => 
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       product.price >= priceRange[0] && product.price <= priceRange[1]
     );
 
@@ -30,8 +30,8 @@ const Products = () => {
           return a.price - b.price;
         case 'price-high':
           return b.price - a.price;
-        case 'title':
-          return a.title.localeCompare(b.title);
+        case 'name':
+          return a.name.localeCompare(b.name);
         default:
           return 0;
       }
@@ -101,7 +101,7 @@ const Products = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none cursor-pointer"
                 >
-                  <option value="title">Sort by Name</option>
+                  <option value="name">Sort by Name</option>
                   <option value="price-low">Price: Low → High</option>
                   <option value="price-high">Price: High → Low</option>
                 </select>
@@ -185,12 +185,12 @@ const Products = () => {
                   <div className="relative h-48 bg-gray-100 overflow-hidden">
                     <img 
                       src={product.image_url} 
-                      alt={product.title}
+                      alt={product.name}
                       className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{product.title}</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{product.name}</h3>
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
@@ -227,7 +227,7 @@ const Products = () => {
               onClick={() => {
                 setSearchTerm('');
                 setPriceRange([0, 1500]);
-                setSortBy('title');
+                setSortBy('name');
               }}
               className="px-6 py-3 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300"
             >

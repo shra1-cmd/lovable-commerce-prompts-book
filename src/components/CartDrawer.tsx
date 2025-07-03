@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 interface CartItem {
   id: string;
-  title: string;
+  name: string;
   price: number;
   image_url: string;
   quantity: number;
@@ -70,11 +70,11 @@ const CartDrawer = ({
                   <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <img 
                       src={item.image_url} 
-                      alt={item.title} 
+                      alt={item.name} 
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div className="flex-1">
-                      <h4 className="font-medium">{item.title}</h4>
+                      <h4 className="font-medium">{item.name}</h4>
                       <p className="text-sm text-gray-500">${item.price}</p>
                       <p className="text-xs text-gray-400">Stock: {item.stock}</p>
                       <div className="flex items-center space-x-2 mt-2">

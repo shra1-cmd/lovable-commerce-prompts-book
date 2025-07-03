@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CartItem {
   id: string;
-  title: string;
+  name: string;
   price: number;
   image_url: string;
   quantity: number;
@@ -36,7 +36,7 @@ export const useCart = () => {
           product_id,
           products (
             id,
-            title,
+            name,
             price,
             image_url,
             stock
@@ -49,7 +49,7 @@ export const useCart = () => {
       const formattedItems = data?.map(item => ({
         id: item.id,
         product_id: item.product_id,
-        title: item.products?.title || '',
+        name: item.products?.name || '',
         price: Number(item.products?.price) || 0,
         image_url: item.products?.image_url || '',
         stock: item.products?.stock || 0,
