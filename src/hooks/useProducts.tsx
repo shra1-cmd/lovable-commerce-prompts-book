@@ -28,7 +28,7 @@ export const useProducts = () => {
       // Map the data to ensure it has the correct structure
       const productsWithStock = (data || []).map(product => ({
         ...product,
-        stock: product.stock || 0 // Use actual stock from database
+        stock: product.quantity || 0 // Map quantity to stock for consistency
       }));
 
       setProducts(productsWithStock);
@@ -43,7 +43,7 @@ export const useProducts = () => {
     try {
       const { error } = await supabase
         .from('products')
-        .update({ stock: newStock })
+        .update({ quantity: newStock }) // Update quantity column in database
         .eq('id', productId);
 
       if (error) throw error;

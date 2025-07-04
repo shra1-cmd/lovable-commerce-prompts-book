@@ -39,7 +39,7 @@ export const useCart = () => {
             name,
             price,
             image_url,
-            stock
+            quantity
           )
         `)
         .eq('user_id', user.id);
@@ -52,7 +52,7 @@ export const useCart = () => {
         name: item.products?.name || '',
         price: Number(item.products?.price) || 0,
         image_url: item.products?.image_url || '',
-        stock: item.products?.stock || 0,
+        stock: item.products?.quantity || 0, // Map quantity to stock
         quantity: item.quantity || 1,
       })) || [];
 
@@ -83,13 +83,13 @@ export const useCart = () => {
       // First, check current product stock
       const { data: product, error: productError } = await supabase
         .from('products')
-        .select('stock')
+        .select('quantity')
         .eq('id', productId)
         .single();
 
       if (productError) throw productError;
 
-      if (product.stock <= 0) {
+      if (product.quantity <= 0) {
         toast({
           title: "Out of stock",
           description: "This item is currently out of stock",
@@ -108,7 +108,7 @@ export const useCart = () => {
 
       const currentCartQuantity = existingCartItem?.quantity || 0;
 
-      if (currentCartQuantity >= product.stock) {
+      if (currentCartQuantity >= product.quantity) {
         toast({
           title: "Cannot add more",
           description: "Not enough stock available",
@@ -157,16 +157,16 @@ export const useCart = () => {
       // Check stock availability
       const { data: product, error: productError } = await supabase
         .from('products')
-        .select('stock')
+        .select('quantity')
         .eq('id', productId)
         .single();
 
       if (productError) throw productError;
 
-      if (newQuantity > product.stock) {
+      if (newQuantity > product.quantity) {
         toast({
           title: "Not enough stock",
-          description: `Only ${product.stock} items available`,
+          description: `Only ${product.quantity} items available`,
           variant: "destructive",
         });
         return;
