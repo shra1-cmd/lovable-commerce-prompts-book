@@ -9,6 +9,7 @@ interface Product {
   price: number;
   image_url: string;
   stock: number;
+  seller_id?: string;
 }
 
 export const useProducts = () => {
@@ -24,10 +25,10 @@ export const useProducts = () => {
 
       if (error) throw error;
 
-      // Map the data to ensure it has the stock property and handle missing columns
+      // Map the data to ensure it has the correct structure
       const productsWithStock = (data || []).map(product => ({
         ...product,
-        stock: 0 // Default to 0 since stock column doesn't exist yet
+        stock: product.stock || 0 // Use actual stock from database
       }));
 
       setProducts(productsWithStock);
@@ -35,6 +36,27 @@ export const useProducts = () => {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateProductStock = async (productId: string, newStock: number) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ stock: newStock })
+        .eq('id', productId);
+
+      if (error) throw error;
+
+      // Update local state
+      setProducts(prev =>
+        prev.map(product =>
+          product.id === productId ? { ...product, stock: newStock } : product
+        )
+      );
+    } catch (error) {
+      console.error('Error updating product stock:', error);
+      throw error;
     }
   };
 
@@ -46,5 +68,6 @@ export const useProducts = () => {
     products,
     loading,
     fetchProducts,
+    updateProductStock,
   };
 };

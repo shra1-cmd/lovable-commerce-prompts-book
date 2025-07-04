@@ -38,7 +38,8 @@ export const useCart = () => {
             id,
             name,
             price,
-            image_url
+            image_url,
+            stock
           )
         `)
         .eq('user_id', user.id);
@@ -51,7 +52,7 @@ export const useCart = () => {
         name: item.products?.name || '',
         price: Number(item.products?.price) || 0,
         image_url: item.products?.image_url || '',
-        stock: 0, // Default stock to 0 for now since column may not exist
+        stock: item.products?.stock || 0,
         quantity: item.quantity || 1,
       })) || [];
 
@@ -79,13 +80,50 @@ export const useCart = () => {
     }
 
     try {
-      // Use upsert to handle duplicates with the unique constraint
+      // First, check current product stock
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('stock')
+        .eq('id', productId)
+        .single();
+
+      if (productError) throw productError;
+
+      if (product.stock <= 0) {
+        toast({
+          title: "Out of stock",
+          description: "This item is currently out of stock",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Check if item is already in cart
+      const { data: existingCartItem } = await supabase
+        .from('cart')
+        .select('quantity')
+        .eq('user_id', user.id)
+        .eq('product_id', productId)
+        .single();
+
+      const currentCartQuantity = existingCartItem?.quantity || 0;
+
+      if (currentCartQuantity >= product.stock) {
+        toast({
+          title: "Cannot add more",
+          description: "Not enough stock available",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Add to cart
       const { error } = await supabase
         .from('cart')
         .upsert({
           user_id: user.id,
           product_id: productId,
-          quantity: 1,
+          quantity: currentCartQuantity + 1,
         }, {
           onConflict: 'user_id,product_id'
         });
@@ -109,14 +147,31 @@ export const useCart = () => {
     }
   };
 
-  const updateQuantity = async (cartId: string, newQuantity: number) => {
+  const updateQuantity = async (cartId: string, newQuantity: number, productId: string) => {
     if (newQuantity < 1) {
-      // Remove item if quantity becomes 0
       await removeFromCart(cartId);
       return;
     }
 
     try {
+      // Check stock availability
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('stock')
+        .eq('id', productId)
+        .single();
+
+      if (productError) throw productError;
+
+      if (newQuantity > product.stock) {
+        toast({
+          title: "Not enough stock",
+          description: `Only ${product.stock} items available`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('cart')
         .update({ quantity: newQuantity })

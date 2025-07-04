@@ -56,6 +56,17 @@ CREATE POLICY "Sellers can update their own products"
 -- Add seller_id column to products table to track who uploaded each product
 ALTER TABLE public.products ADD COLUMN seller_id UUID REFERENCES auth.users;
 
+-- Ensure products table has stock column (rename quantity to stock for consistency)
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='products' AND column_name='quantity') THEN
+        ALTER TABLE products RENAME COLUMN quantity TO stock;
+    END IF;
+END $$;
+
+-- Add stock column if it doesn't exist
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT 0;
+
 -- Update the products insert policy to set seller_id
 DROP POLICY IF EXISTS "Approved sellers can insert products" ON public.products;
 CREATE POLICY "Approved sellers can insert products" 

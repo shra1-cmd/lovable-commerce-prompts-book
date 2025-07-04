@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import Navigation from '../components/Navigation';
 import ProductCard from '../components/ProductCard';
-import { Search, Filter, ChevronDown, X, ShoppingCart } from 'lucide-react';
+import { Search, Filter, ChevronDown, X } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -41,10 +41,6 @@ const Products = () => {
   }, [products, searchTerm, sortBy, priceRange]);
 
   const handleAddToCart = async (productId: string) => {
-    if (!user) {
-      window.location.href = '/auth';
-      return;
-    }
     await addToCart(productId);
   };
 
@@ -180,41 +176,17 @@ const Products = () => {
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="transform hover:scale-105 transition-transform duration-300">
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <div className="relative h-48 bg-gray-100 overflow-hidden">
-                    <img 
-                      src={product.image_url} 
-                      alt={product.name}
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
-                        ${product.price}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        Stock: {product.stock}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleAddToCart(product.id)}
-                      disabled={product.stock === 0}
-                      className={`w-full flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg transition-all duration-300 hover:scale-105 ${
-                        product.stock === 0 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                          : 'bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)]'
-                      }`}
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      {product.stock === 0 ? 'Out of Stock' : (user ? 'Add to Cart' : 'Sign In')}
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                description={product.description}
+                imageUrl={product.image_url}
+                stock={product.stock}
+                onAddToCart={handleAddToCart}
+                isAuthenticated={!!user}
+              />
             ))}
           </div>
         ) : (

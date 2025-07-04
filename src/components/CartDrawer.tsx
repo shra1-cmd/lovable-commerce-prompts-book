@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ShoppingCart, Plus, Minus, Trash2, X } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 
@@ -11,13 +11,14 @@ interface CartItem {
   image_url: string;
   quantity: number;
   stock: number;
+  product_id: string;
 }
 
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   cartItems: CartItem[];
-  onUpdateQuantity: (id: string, quantity: number) => void;
+  onUpdateQuantity: (id: string, quantity: number, productId: string) => void;
   onRemoveItem: (id: string) => void;
   onCheckout: () => void;
 }
@@ -32,16 +33,15 @@ const CartDrawer = ({
 }: CartDrawerProps) => {
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  const handleQuantityChange = (id: string, newQuantity: number) => {
+  const handleQuantityChange = (id: string, newQuantity: number, productId: string, currentStock: number) => {
     if (newQuantity < 0) return;
     
-    const item = cartItems.find(item => item.id === id);
-    if (item && newQuantity > item.stock) {
-      alert(`Only ${item.stock} items available in stock`);
+    if (newQuantity > currentStock) {
+      alert(`Only ${currentStock} items available in stock`);
       return;
     }
     
-    onUpdateQuantity(id, newQuantity);
+    onUpdateQuantity(id, newQuantity, productId);
   };
 
   return (
@@ -76,17 +76,19 @@ const CartDrawer = ({
                     <div className="flex-1">
                       <h4 className="font-medium">{item.name}</h4>
                       <p className="text-sm text-gray-500">${item.price}</p>
-                      <p className="text-xs text-gray-400">Stock: {item.stock}</p>
+                      <p className={`text-xs ${item.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {item.stock > 0 ? `${item.stock} in stock` : 'Out of stock'}
+                      </p>
                       <div className="flex items-center space-x-2 mt-2">
                         <button
-                          onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                          onClick={() => handleQuantityChange(item.id, item.quantity - 1, item.product_id, item.stock)}
                           className="p-1 hover:bg-gray-200 rounded"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
                         <span className="w-8 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                          onClick={() => handleQuantityChange(item.id, item.quantity + 1, item.product_id, item.stock)}
                           className="p-1 hover:bg-gray-200 rounded"
                           disabled={item.quantity >= item.stock}
                         >
@@ -112,8 +114,9 @@ const CartDrawer = ({
                 <Button 
                   onClick={onCheckout}
                   className="w-full bg-gradient-to-r from-blue-500 to-violet-500 hover:shadow-lg"
+                  disabled={cartItems.some(item => item.stock === 0)}
                 >
-                  Proceed to Checkout
+                  {cartItems.some(item => item.stock === 0) ? 'Some items out of stock' : 'Proceed to Checkout'}
                 </Button>
               </div>
             </>
