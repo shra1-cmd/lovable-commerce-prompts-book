@@ -3,8 +3,17 @@ import React from 'react';
 import Navigation from '../components/Navigation';
 import ProductCard from '../components/ProductCard';
 import { sampleProducts } from '../data/products';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 
 const Index = () => {
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+
+  const handleAddToCart = async (productId: string) => {
+    await addToCart(productId);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -35,6 +44,9 @@ const Index = () => {
               price={product.price}
               description={product.description}
               imageUrl={product.imageUrl}
+              stock={10} // Default stock for sample products
+              onAddToCart={handleAddToCart}
+              isAuthenticated={!!user}
             />
           ))}
         </div>
