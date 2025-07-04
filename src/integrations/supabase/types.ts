@@ -91,6 +91,8 @@ export type Database = {
           image_url: string | null
           name: string
           price: number
+          quantity: number | null
+          seller_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -99,6 +101,8 @@ export type Database = {
           image_url?: string | null
           name: string
           price: number
+          quantity?: number | null
+          seller_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -107,27 +111,65 @@ export type Database = {
           image_url?: string | null
           name?: string
           price?: number
+          quantity?: number | null
+          seller_id?: string | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
+          address: string | null
           created_at: string | null
           email: string | null
           id: string
+          mobile: string | null
           name: string | null
         }
         Insert: {
+          address?: string | null
           created_at?: string | null
           email?: string | null
           id: string
+          mobile?: string | null
           name?: string | null
         }
         Update: {
+          address?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
+          mobile?: string | null
           name?: string | null
+        }
+        Relationships: []
+      }
+      seller_profiles: {
+        Row: {
+          business_address: string | null
+          business_name: string | null
+          created_at: string
+          id: string
+          is_approved: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_address?: string | null
+          business_name?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_address?: string | null
+          business_name?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
