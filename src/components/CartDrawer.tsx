@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface CartItem {
   id: string;
@@ -31,6 +32,7 @@ const CartDrawer = ({
   onRemoveItem, 
   onCheckout 
 }: CartDrawerProps) => {
+  const navigate = useNavigate();
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleQuantityChange = (id: string, newQuantity: number, productId: string, currentStock: number) => {
@@ -42,6 +44,11 @@ const CartDrawer = ({
     }
     
     onUpdateQuantity(id, newQuantity, productId);
+  };
+
+  const handleProceedToPayment = () => {
+    onClose();
+    navigate('/payment');
   };
 
   return (
@@ -75,7 +82,7 @@ const CartDrawer = ({
                     />
                     <div className="flex-1">
                       <h4 className="font-medium">{item.name}</h4>
-                      <p className="text-sm text-gray-500">${item.price}</p>
+                      <p className="text-sm text-gray-500">₹{item.price}</p>
                       <p className={`text-xs ${item.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {item.stock > 0 ? `${item.stock} in stock` : 'Out of stock'}
                       </p>
@@ -109,14 +116,15 @@ const CartDrawer = ({
               <div className="border-t pt-4 space-y-4">
                 <div className="flex justify-between items-center text-lg font-semibold">
                   <span>Total:</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
                 <Button 
-                  onClick={onCheckout}
-                  className="w-full bg-gradient-to-r from-blue-500 to-violet-500 hover:shadow-lg"
+                  onClick={handleProceedToPayment}
+                  className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:shadow-lg"
                   disabled={cartItems.some(item => item.stock === 0)}
                 >
-                  {cartItems.some(item => item.stock === 0) ? 'Some items out of stock' : 'Proceed to Checkout'}
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  {cartItems.some(item => item.stock === 0) ? 'Some items out of stock' : 'Proceed to Payment'}
                 </Button>
               </div>
             </>

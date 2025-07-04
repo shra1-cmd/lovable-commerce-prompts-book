@@ -83,6 +83,47 @@ export type Database = {
           },
         ]
       }
+      payment_proofs: {
+        Row: {
+          created_at: string | null
+          id: string
+          order_id: string | null
+          payment_amount: number
+          status: string | null
+          updated_at: string | null
+          uploaded_file: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_amount: number
+          status?: string | null
+          updated_at?: string | null
+          uploaded_file?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_amount?: number
+          status?: string | null
+          updated_at?: string | null
+          uploaded_file?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_proofs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           created_at: string | null
