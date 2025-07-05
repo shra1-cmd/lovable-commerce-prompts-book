@@ -50,27 +50,30 @@ export type Database = {
       }
       orders: {
         Row: {
+          amount: number | null
           created_at: string | null
           id: string
           items: Json
+          quantity: number
           status: string | null
-          total: number
           user_id: string | null
         }
         Insert: {
+          amount?: number | null
           created_at?: string | null
           id?: string
           items: Json
+          quantity: number
           status?: string | null
-          total: number
           user_id?: string | null
         }
         Update: {
+          amount?: number | null
           created_at?: string | null
           id?: string
           items?: Json
+          quantity?: number
           status?: string | null
-          total?: number
           user_id?: string | null
         }
         Relationships: [

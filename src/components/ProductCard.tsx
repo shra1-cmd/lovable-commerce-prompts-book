@@ -31,6 +31,13 @@ const ProductCard = ({
     onAddToCart(id);
   };
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(price);
+  };
+
   return (
     <div className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
@@ -56,10 +63,10 @@ const ProductCard = ({
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{description}</p>
         <div className="flex items-center justify-between mb-3">
           <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
-            ${price}
+            {formatPrice(price)}
           </span>
           <span className={`text-sm font-medium ${stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {stock > 0 ? `Stock: ${stock}` : 'Out of Stock'}
+            {stock > 0 ? `In Stock: ${stock}` : 'Out of Stock'}
           </span>
         </div>
         <div className="flex space-x-2">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -218,19 +217,99 @@ export const useCart = () => {
     }
   };
 
+  const createOrder = async () => {
+    if (!user || cartItems.length === 0) {
+      return null;
+    }
+
+    try {
+      // Calculate total
+      const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      // Prepare order items with complete product details
+      const orderItems = cartItems.map(item => ({
+        id: item.product_id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        imageUrl: item.image_url,
+        productId: item.product_id
+      }));
+
+      // Create order
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          items: orderItems,
+          quantity: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+          amount: total,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Deduct stock for each product
+      for (const item of cartItems) {
+        const { error: stockError } = await supabase
+          .from('products')
+          .update({ 
+            quantity: Math.max(0, item.stock - item.quantity) 
+          })
+          .eq('id', item.product_id);
+
+        if (stockError) {
+          console.error('Error updating stock for product:', item.product_id, stockError);
+        }
+      }
+
+      // Clear cart after successful order
+      await clearCart();
+
+      return orderData;
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
+  };
+
+  const clearCart = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('cart')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setCartItems([]);
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchCart();
   }, [user]);
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return {
     cartItems,
     loading,
     cartItemCount,
+    cartTotal,
     addToCart,
     updateQuantity,
     removeFromCart,
     fetchCart,
+    createOrder,
+    clearCart,
   };
 };

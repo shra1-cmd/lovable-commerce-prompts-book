@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navigation from '../components/Navigation';
 import { ChevronDown, ChevronRight, ShoppingCart, Eye, RotateCcw } from 'lucide-react';
@@ -29,17 +28,31 @@ const Orders = () => {
         return 'bg-yellow-500/20 text-yellow-600 shadow-[0_0_10px_rgba(234,179,8,0.3)]';
       case 'shipped':
         return 'bg-blue-500/20 text-blue-600 shadow-[0_0_10px_rgba(59,130,246,0.3)]';
+      case 'pending':
+        return 'bg-orange-500/20 text-orange-600 shadow-[0_0_10px_rgba(249,115,22,0.3)]';
       default:
         return 'bg-gray-500/20 text-gray-600';
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const formatDateIndian = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(price);
   };
 
   const handleReorder = (orderId: string) => {
@@ -126,13 +139,17 @@ const Orders = () => {
                         ) : (
                           <ChevronRight className="h-5 w-5 text-gray-500" />
                         )}
-                        <span className="font-mono text-lg font-semibold text-gray-800">
-                          #{order.id.slice(0, 8)}
-                        </span>
+                        <div>
+                          <span className="font-mono text-lg font-semibold text-gray-800">
+                            #{order.id.slice(0, 8)}
+                          </span>
+                          <p className="text-sm text-gray-500">Order ID</p>
+                        </div>
                       </div>
                       
                       <div className="text-gray-600">
-                        {formatDate(order.created_at)}
+                        <div className="font-medium">{formatDateIndian(order.created_at)}</div>
+                        <p className="text-sm text-gray-500">Ordered On</p>
                       </div>
                       
                       <span className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(order.status)}`}>
@@ -142,8 +159,9 @@ const Orders = () => {
                     
                     <div className="text-right">
                       <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
-                        ${Number(order.total).toFixed(2)}
+                        {formatPrice(Number(order.total))}
                       </div>
+                      <p className="text-sm text-gray-500">Total Amount</p>
                     </div>
                   </div>
                 </div>
@@ -152,25 +170,63 @@ const Orders = () => {
                 {expandedOrders.has(order.id) && (
                   <div className="border-t border-gray-200 bg-gray-50/50">
                     <div className="p-6">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Order Items</h4>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Order Details</h4>
+                      
+                      {/* Order Summary */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-white rounded-lg border">
+                        <div>
+                          <p className="text-sm text-gray-500">Product ID</p>
+                          <p className="font-semibold text-gray-800">#{order.id.slice(-6)}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Order Date</p>
+                          <p className="font-semibold text-gray-800">{formatDateIndian(order.created_at)}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Status</p>
+                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium capitalize ${getStatusColor(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Total Price</p>
+                          <p className="font-semibold text-gray-800">{formatPrice(Number(order.total))}</p>
+                        </div>
+                      </div>
+
+                      <h5 className="text-md font-semibold text-gray-800 mb-3">Products Ordered</h5>
                       <div className="space-y-4">
                         {order.items.map((item, index) => (
-                          <div key={index} className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow-sm">
+                          <div key={index} className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow-sm border">
                             <img 
                               src={item.imageUrl} 
                               alt={item.name}
-                              className="w-16 h-16 object-cover rounded-lg"
+                              className="w-16 h-16 object-cover rounded-lg border"
                             />
                             <div className="flex-1">
-                              <h5 className="font-semibold text-gray-800">{item.name}</h5>
-                              <p className="text-gray-600">Quantity: {item.quantity}</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div>
+                                  <p className="text-xs text-gray-500">Product Name</p>
+                                  <h5 className="font-semibold text-gray-800">{item.name}</h5>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Product ID</p>
+                                  <p className="font-mono text-sm text-gray-600">#{item.productId?.slice(-8) || item.id}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Quantity</p>
+                                  <p className="font-medium text-gray-800">{item.quantity} pcs</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">Unit Price</p>
+                                  <p className="font-medium text-gray-800">{formatPrice(item.price)}</p>
+                                </div>
+                              </div>
                             </div>
                             <div className="text-right">
-                              <div className="font-semibold text-gray-800">
-                                ${(item.price * item.quantity).toFixed(2)}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                ${item.price.toFixed(2)} each
+                              <p className="text-xs text-gray-500">Subtotal</p>
+                              <div className="font-bold text-lg text-gray-800">
+                                {formatPrice(item.price * item.quantity)}
                               </div>
                             </div>
                           </div>
