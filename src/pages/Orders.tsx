@@ -159,7 +159,7 @@ const Orders = () => {
                     
                     <div className="text-right">
                       <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
-                        {formatPrice(Number(order.total))}
+                        {formatPrice(Number(order.amount))}
                       </div>
                       <p className="text-sm text-gray-500">Total Amount</p>
                     </div>
@@ -190,7 +190,7 @@ const Orders = () => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">Total Price</p>
-                          <p className="font-semibold text-gray-800">{formatPrice(Number(order.total))}</p>
+                          <p className="font-semibold text-gray-800">{formatPrice(Number(order.amount))}</p>
                         </div>
                       </div>
 
@@ -211,7 +211,7 @@ const Orders = () => {
                                 </div>
                                 <div>
                                   <p className="text-xs text-gray-500">Product ID</p>
-                                  <p className="font-mono text-sm text-gray-600">#{item.productId?.slice(-8) || item.id}</p>
+                                  <p className="font-mono text-sm text-gray-600">#{item.id.slice(-8)}</p>
                                 </div>
                                 <div>
                                   <p className="text-xs text-gray-500">Quantity</p>

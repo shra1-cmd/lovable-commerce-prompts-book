@@ -14,7 +14,7 @@ interface OrderItem {
 interface Order {
   id: string;
   created_at: string;
-  total: number;
+  amount: number;
   status: string;
   items: OrderItem[];
 }
@@ -44,7 +44,7 @@ export const useOrders = () => {
       const transformedOrders: Order[] = (data || []).map(order => ({
         id: order.id,
         created_at: order.created_at || '',
-        total: order.total,
+        amount: order.amount || 0,
         status: order.status || 'processing',
         items: Array.isArray(order.items) ? (order.items as unknown as OrderItem[]) : []
       }));

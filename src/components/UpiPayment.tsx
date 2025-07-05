@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Copy, Upload, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -142,8 +141,9 @@ const UpiPayment = ({ totalAmount, cartItems, onPaymentSubmitted }: UpiPaymentPr
         .from('orders')
         .insert({
           user_id: user.id,
-          total: totalAmount,
+          amount: totalAmount,
           status: 'pending',
+          quantity: cartItems.reduce((sum, item) => sum + item.quantity, 0),
           items: cartItems.map(item => ({
             id: item.product_id,
             name: item.name,
