@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ShoppingCart, Search } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -12,13 +11,11 @@ import { useProducts } from '@/hooks/useProducts';
 const Navigation = () => {
   const location = useLocation();
   
-  // Modal/Drawer states
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   
-  // Auth and cart hooks
   const { user, signOut } = useAuth();
-  const { cartItems, cartItemCount, updateQuantity, removeFromCart } = useCart();
+  const { cartItems, cartItemCount, updateQuantity, removeFromCart, refreshCart, isRefreshing } = useCart();
   const { products } = useProducts();
 
   const isActive = (path: string) => {
@@ -27,7 +24,6 @@ const Navigation = () => {
 
   const handleCheckout = () => {
     setIsCartDrawerOpen(false);
-    // Navigate to checkout or handle checkout logic
     console.log('Proceeding to checkout...');
   };
 
@@ -45,7 +41,6 @@ const Navigation = () => {
 
   const handleProfile = () => {
     console.log('Navigate to profile...');
-    // Navigate to profile page
   };
 
   const handleOrders = () => {
@@ -148,6 +143,8 @@ const Navigation = () => {
         onUpdateQuantity={updateQuantity}
         onRemoveItem={removeFromCart}
         onCheckout={handleCheckout}
+        onRefresh={refreshCart}
+        isRefreshing={isRefreshing}
       />
     </>
   );

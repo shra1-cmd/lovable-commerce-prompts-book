@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, CreditCard, RefreshCw } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,8 @@ interface CartDrawerProps {
   onUpdateQuantity: (id: string, quantity: number, productId: string) => void;
   onRemoveItem: (id: string) => void;
   onCheckout: () => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 const CartDrawer = ({ 
@@ -30,7 +32,9 @@ const CartDrawer = ({
   cartItems, 
   onUpdateQuantity, 
   onRemoveItem, 
-  onCheckout 
+  onCheckout,
+  onRefresh,
+  isRefreshing = false
 }: CartDrawerProps) => {
   const navigate = useNavigate();
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -51,13 +55,30 @@ const CartDrawer = ({
     navigate('/payment');
   };
 
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-96">
         <SheetHeader>
-          <SheetTitle className="flex items-center space-x-2">
-            <ShoppingCart className="h-5 w-5" />
-            <span>Shopping Cart</span>
+          <SheetTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <ShoppingCart className="h-5 w-5" />
+              <span>Shopping Cart</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
           </SheetTitle>
         </SheetHeader>
 

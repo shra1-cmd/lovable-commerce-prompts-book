@@ -16,6 +16,7 @@ interface CartItem {
 export const useCart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -51,7 +52,7 @@ export const useCart = () => {
         name: item.products?.name || '',
         price: Number(item.products?.price) || 0,
         image_url: item.products?.image_url || '',
-        stock: item.products?.quantity || 0, // Map quantity to stock
+        stock: item.products?.quantity || 0,
         quantity: item.quantity || 1,
       })) || [];
 
@@ -68,6 +69,26 @@ export const useCart = () => {
     }
   };
 
+  const refreshCart = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchCart();
+      toast({
+        title: "Cart refreshed",
+        description: "Your cart has been updated with the latest information",
+      });
+    } catch (error) {
+      console.error('Error refreshing cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh cart",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const addToCart = async (productId: string) => {
     if (!user) {
       toast({
@@ -79,13 +100,11 @@ export const useCart = () => {
     }
 
     try {
-      // Optimistic update - immediately show loading state
       toast({
         title: "Adding to cart...",
         description: "Please wait",
       });
 
-      // First, check current product stock
       const { data: product, error: productError } = await supabase
         .from('products')
         .select('quantity, name, price, image_url')
@@ -103,7 +122,6 @@ export const useCart = () => {
         return false;
       }
 
-      // Check if item is already in cart
       const { data: existingCartItem } = await supabase
         .from('cart')
         .select('id, quantity')
@@ -124,7 +142,6 @@ export const useCart = () => {
 
       const newQuantity = currentCartQuantity + 1;
 
-      // Optimistic update to cart items
       if (existingCartItem) {
         setCartItems(prev =>
           prev.map(item =>
@@ -134,9 +151,8 @@ export const useCart = () => {
           )
         );
       } else {
-        // Add new item optimistically
         const newItem = {
-          id: `temp-${Date.now()}`, // Temporary ID
+          id: `temp-${Date.now()}`,
           product_id: productId,
           name: product.name || '',
           price: Number(product.price) || 0,
@@ -147,7 +163,6 @@ export const useCart = () => {
         setCartItems(prev => [...prev, newItem]);
       }
 
-      // Add to cart in database
       const { data: cartData, error } = await supabase
         .from('cart')
         .upsert({
@@ -162,7 +177,6 @@ export const useCart = () => {
 
       if (error) throw error;
 
-      // Update with real cart ID if it was a new item
       if (!existingCartItem) {
         setCartItems(prev =>
           prev.map(item =>
@@ -180,7 +194,6 @@ export const useCart = () => {
       return true;
     } catch (error) {
       console.error('Error adding to cart:', error);
-      // Revert optimistic update on error
       await fetchCart();
       toast({
         title: "Error",
@@ -197,7 +210,6 @@ export const useCart = () => {
       return;
     }
 
-    // Optimistic update
     const previousItems = [...cartItems];
     setCartItems(prev =>
       prev.map(item =>
@@ -206,7 +218,6 @@ export const useCart = () => {
     );
 
     try {
-      // Check stock availability
       const { data: product, error: productError } = await supabase
         .from('products')
         .select('quantity')
@@ -216,7 +227,6 @@ export const useCart = () => {
       if (productError) throw productError;
 
       if (newQuantity > product.quantity) {
-        // Revert optimistic update
         setCartItems(previousItems);
         toast({
           title: "Not enough stock",
@@ -235,7 +245,6 @@ export const useCart = () => {
 
     } catch (error) {
       console.error('Error updating quantity:', error);
-      // Revert optimistic update
       setCartItems(previousItems);
       toast({
         title: "Error",
@@ -246,7 +255,6 @@ export const useCart = () => {
   };
 
   const removeFromCart = async (cartId: string) => {
-    // Optimistic update
     const previousItems = [...cartItems];
     setCartItems(prev => prev.filter(item => item.id !== cartId));
 
@@ -264,7 +272,6 @@ export const useCart = () => {
       });
     } catch (error) {
       console.error('Error removing from cart:', error);
-      // Revert optimistic update
       setCartItems(previousItems);
       toast({
         title: "Error",
@@ -280,10 +287,8 @@ export const useCart = () => {
     }
 
     try {
-      // Calculate total
       const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-      // Prepare order items with complete product details
       const orderItems = cartItems.map(item => ({
         id: item.product_id,
         name: item.name,
@@ -293,7 +298,6 @@ export const useCart = () => {
         productId: item.product_id
       }));
 
-      // Create order
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -308,7 +312,6 @@ export const useCart = () => {
 
       if (orderError) throw orderError;
 
-      // Deduct stock for each product after successful order creation
       for (const item of cartItems) {
         const { data: product, error: fetchError } = await supabase
           .from('products')
@@ -337,7 +340,6 @@ export const useCart = () => {
         }
       }
 
-      // Clear cart after successful order and stock deduction
       await clearCart();
 
       toast({
@@ -370,13 +372,11 @@ export const useCart = () => {
     }
   };
 
-  // Set up real-time subscription for cart changes
   useEffect(() => {
     fetchCart();
 
     if (!user) return;
 
-    // Subscribe to cart changes
     const cartChannel = supabase
       .channel('cart-changes')
       .on('postgres_changes', 
@@ -388,7 +388,6 @@ export const useCart = () => {
         }, 
         (payload) => {
           console.log('Cart updated:', payload);
-          // Refresh cart data to get latest stock info
           fetchCart();
         }
       )
@@ -407,87 +406,13 @@ export const useCart = () => {
     loading,
     cartItemCount,
     cartTotal,
+    isRefreshing,
     addToCart,
     updateQuantity,
     removeFromCart,
     fetchCart,
-    createOrder: async () => {
-      if (!user || cartItems.length === 0) {
-        return null;
-      }
-
-      try {
-        // Calculate total
-        const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-        // Prepare order items with complete product details
-        const orderItems = cartItems.map(item => ({
-          id: item.product_id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          imageUrl: item.image_url,
-          productId: item.product_id
-        }));
-
-        // Create order
-        const { data: orderData, error: orderError } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            items: orderItems,
-            quantity: cartItems.reduce((sum, item) => sum + item.quantity, 0),
-            amount: total,
-            status: 'pending'
-          })
-          .select()
-          .single();
-
-        if (orderError) throw orderError;
-
-        // Deduct stock for each product after successful order creation
-        for (const item of cartItems) {
-          const { data: product, error: fetchError } = await supabase
-            .from('products')
-            .select('quantity')
-            .eq('id', item.product_id)
-            .single();
-
-          if (fetchError) {
-            console.error('Error fetching product stock for deduction:', fetchError);
-            continue;
-          }
-
-          const newStock = Math.max(0, (product.quantity || 0) - item.quantity);
-          
-          const { error: stockError } = await supabase
-            .from('products')
-            .update({ 
-              quantity: newStock
-            })
-            .eq('id', item.product_id);
-
-          if (stockError) {
-            console.error('Error updating stock for product:', item.product_id, stockError);
-          } else {
-            console.log(`Stock deducted for product ${item.product_id}: ${product.quantity} -> ${newStock}`);
-          }
-        }
-
-        // Clear cart after successful order and stock deduction
-        await clearCart();
-
-        toast({
-          title: "Order created successfully!",
-          description: "Stock has been updated for all ordered items.",
-        });
-
-        return orderData;
-      } catch (error) {
-        console.error('Error creating order:', error);
-        throw error;
-      }
-    },
+    refreshCart,
+    createOrder,
     clearCart,
   };
 };
