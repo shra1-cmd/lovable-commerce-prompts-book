@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -251,22 +252,42 @@ export const useCart = () => {
 
       if (orderError) throw orderError;
 
-      // Deduct stock for each product
+      // Deduct stock for each product after successful order creation
       for (const item of cartItems) {
+        const { data: product, error: fetchError } = await supabase
+          .from('products')
+          .select('quantity')
+          .eq('id', item.product_id)
+          .single();
+
+        if (fetchError) {
+          console.error('Error fetching product stock for deduction:', fetchError);
+          continue;
+        }
+
+        const newStock = Math.max(0, (product.quantity || 0) - item.quantity);
+        
         const { error: stockError } = await supabase
           .from('products')
           .update({ 
-            quantity: Math.max(0, item.stock - item.quantity) 
+            quantity: newStock
           })
           .eq('id', item.product_id);
 
         if (stockError) {
           console.error('Error updating stock for product:', item.product_id, stockError);
+        } else {
+          console.log(`Stock deducted for product ${item.product_id}: ${product.quantity} -> ${newStock}`);
         }
       }
 
-      // Clear cart after successful order
+      // Clear cart after successful order and stock deduction
       await clearCart();
+
+      toast({
+        title: "Order created successfully!",
+        description: "Stock has been updated for all ordered items.",
+      });
 
       return orderData;
     } catch (error) {

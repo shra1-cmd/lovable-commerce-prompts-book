@@ -60,8 +60,36 @@ export const useProducts = () => {
     }
   };
 
+  // Set up real-time subscription for product quantity changes
   useEffect(() => {
     fetchProducts();
+
+    // Subscribe to real-time changes in products table
+    const channel = supabase
+      .channel('product-changes')
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'products' 
+        }, 
+        (payload) => {
+          console.log('Product updated:', payload);
+          // Update the specific product in local state
+          setProducts(prev => 
+            prev.map(product => 
+              product.id === payload.new.id 
+                ? { ...product, stock: payload.new.quantity || 0 }
+                : product
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {

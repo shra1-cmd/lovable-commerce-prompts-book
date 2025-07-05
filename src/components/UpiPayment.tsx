@@ -157,6 +157,33 @@ const UpiPayment = ({ totalAmount, cartItems, onPaymentSubmitted }: UpiPaymentPr
 
       if (orderError) throw orderError;
 
+      // Deduct stock for each product after order is created
+      for (const item of cartItems) {
+        const { data: product, error: fetchError } = await supabase
+          .from('products')
+          .select('quantity')
+          .eq('id', item.product_id)
+          .single();
+
+        if (fetchError) {
+          console.error('Error fetching product stock:', fetchError);
+          continue;
+        }
+
+        const newStock = Math.max(0, (product.quantity || 0) - item.quantity);
+        
+        const { error: updateError } = await supabase
+          .from('products')
+          .update({ quantity: newStock })
+          .eq('id', item.product_id);
+
+        if (updateError) {
+          console.error('Error updating product stock:', updateError);
+        } else {
+          console.log(`Stock updated for product ${item.product_id}: ${product.quantity} -> ${newStock}`);
+        }
+      }
+
       // Insert payment proof
       const { error: proofError } = await supabase
         .from('payment_proofs')
@@ -180,7 +207,7 @@ const UpiPayment = ({ totalAmount, cartItems, onPaymentSubmitted }: UpiPaymentPr
 
       toast({
         title: "✅ Payment submitted for review",
-        description: "Your payment will be verified by the admin shortly",
+        description: "Your payment will be verified by the admin shortly. Stock has been updated.",
       });
 
       onPaymentSubmitted();
