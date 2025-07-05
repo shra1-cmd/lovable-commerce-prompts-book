@@ -218,19 +218,48 @@ export const useCart = () => {
     }
   };
 
+  const clearCart = async () => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('cart')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setCartItems([]);
+      toast({
+        title: "Cart cleared",
+        description: "All items have been removed from your cart",
+      });
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear cart",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchCart();
   }, [user]);
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return {
     cartItems,
     loading,
     cartItemCount,
+    cartTotal,
     addToCart,
     updateQuantity,
     removeFromCart,
+    clearCart,
     fetchCart,
   };
 };

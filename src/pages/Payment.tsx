@@ -123,11 +123,11 @@ const Payment = () => {
         user_id: user?.id,
         total: cartTotal,
         items: cartItems.map(item => ({
-          id: item.product.id,
-          name: item.product.name,
-          price: item.product.price,
+          id: item.id,
+          name: item.name,
+          price: item.price,
           quantity: item.quantity,
-          imageUrl: item.product.image_url
+          imageUrl: item.image_url
         })),
         status: 'processing'
       };
