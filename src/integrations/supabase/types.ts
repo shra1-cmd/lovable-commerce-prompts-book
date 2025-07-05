@@ -54,6 +54,7 @@ export type Database = {
           created_at: string | null
           id: string
           items: Json
+          "name of product": string | null
           quantity: number
           status: string | null
           user_id: string | null
@@ -63,6 +64,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           items: Json
+          "name of product"?: string | null
           quantity: number
           status?: string | null
           user_id?: string | null
@@ -72,6 +74,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           items?: Json
+          "name of product"?: string | null
           quantity?: number
           status?: string | null
           user_id?: string | null

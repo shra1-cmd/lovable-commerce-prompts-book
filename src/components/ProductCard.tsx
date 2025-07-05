@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ShoppingCart, Eye } from 'lucide-react';
 
 interface ProductCardProps {
@@ -23,12 +23,20 @@ const ProductCard = ({
   onAddToCart,
   isAuthenticated 
 }: ProductCardProps) => {
-  const handleAddToCart = () => {
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddToCart = async () => {
     if (!isAuthenticated) {
       window.location.href = '/auth';
       return;
     }
-    onAddToCart(id);
+    
+    setIsAdding(true);
+    try {
+      await onAddToCart(id);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -65,7 +73,11 @@ const ProductCard = ({
           <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
             {formatPrice(price)}
           </span>
-          <span className={`text-sm font-medium ${stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <span className={`text-sm font-medium ${
+            stock > 10 ? 'text-green-600' : 
+            stock > 0 ? 'text-orange-600' : 
+            'text-red-600'
+          }`}>
             {stock > 0 ? `In Stock: ${stock}` : 'Out of Stock'}
           </span>
         </div>
@@ -75,16 +87,18 @@ const ProductCard = ({
           </button>
           <button 
             onClick={handleAddToCart}
-            disabled={stock === 0}
+            disabled={stock === 0 || isAdding}
             className={`group/btn flex-1 p-2 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)] transition-all duration-300 flex items-center justify-center gap-2 ${
-              stock === 0 
+              stock === 0 || isAdding
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                 : 'bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:scale-105'
             }`}
           >
-            <ShoppingCart className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
+            <ShoppingCart className={`h-4 w-4 transition-transform ${isAdding ? 'animate-pulse' : 'group-hover/btn:scale-110'}`} />
             <span className="text-sm font-medium">
-              {stock === 0 ? 'Out of Stock' : (isAuthenticated ? 'Add to Cart' : 'Sign In')}
+              {isAdding ? 'Adding...' : 
+               stock === 0 ? 'Out of Stock' : 
+               (isAuthenticated ? 'Add to Cart' : 'Sign In')}
             </span>
           </button>
         </div>

@@ -40,6 +40,13 @@ export const useProducts = () => {
   };
 
   const updateProductStock = async (productId: string, newStock: number) => {
+    // Optimistic update
+    setProducts(prev =>
+      prev.map(product =>
+        product.id === productId ? { ...product, stock: newStock } : product
+      )
+    );
+
     try {
       const { error } = await supabase
         .from('products')
@@ -48,19 +55,15 @@ export const useProducts = () => {
 
       if (error) throw error;
 
-      // Update local state
-      setProducts(prev =>
-        prev.map(product =>
-          product.id === productId ? { ...product, stock: newStock } : product
-        )
-      );
     } catch (error) {
       console.error('Error updating product stock:', error);
+      // Revert optimistic update
+      await fetchProducts();
       throw error;
     }
   };
 
-  // Set up real-time subscription for product quantity changes
+  // Set up real-time subscription for product quantity changes with improved performance
   useEffect(() => {
     fetchProducts();
 
@@ -75,7 +78,7 @@ export const useProducts = () => {
         }, 
         (payload) => {
           console.log('Product updated:', payload);
-          // Update the specific product in local state
+          // Optimistically update the specific product in local state
           setProducts(prev => 
             prev.map(product => 
               product.id === payload.new.id 
@@ -83,6 +86,22 @@ export const useProducts = () => {
                 : product
             )
           );
+        }
+      )
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'products' 
+        }, 
+        (payload) => {
+          console.log('New product added:', payload);
+          // Add new product to the list
+          const newProduct = {
+            ...payload.new,
+            stock: payload.new.quantity || 0
+          } as Product;
+          setProducts(prev => [newProduct, ...prev]);
         }
       )
       .subscribe();
