@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import Navigation from '../components/Navigation';
-import { ChevronDown, ChevronRight, ShoppingCart, Eye, RotateCcw } from 'lucide-react';
+import OrderTrackingModal from '../components/OrderTrackingModal';
+import { ChevronDown, ChevronRight, ShoppingCart, Eye, RotateCcw, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrders } from '@/hooks/useOrders';
 
 const Orders = () => {
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [trackingModal, setTrackingModal] = useState<{ isOpen: boolean; orderId: string; orderNumber: string }>({
+    isOpen: false,
+    orderId: '',
+    orderNumber: ''
+  });
   const { user } = useAuth();
   const { orders, loading } = useOrders();
 
@@ -57,6 +63,14 @@ const Orders = () => {
 
   const handleReorder = (orderId: string) => {
     console.log(`Reordering items from ${orderId}`);
+  };
+
+  const handleTrackOrder = (orderId: string) => {
+    setTrackingModal({
+      isOpen: true,
+      orderId,
+      orderNumber: orderId.slice(0, 8)
+    });
   };
 
   if (!user) {
@@ -243,6 +257,14 @@ const Orders = () => {
                           Reorder
                         </button>
                         
+                        <button 
+                          onClick={() => handleTrackOrder(order.id)}
+                          className="flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <MapPin className="h-4 w-4" />
+                          Track Order
+                        </button>
+
                         <button className="flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           <Eye className="h-4 w-4" />
                           View Receipt
@@ -274,6 +296,14 @@ const Orders = () => {
           </div>
         )}
       </div>
+
+      {/* Order Tracking Modal */}
+      <OrderTrackingModal
+        isOpen={trackingModal.isOpen}
+        onClose={() => setTrackingModal({ ...trackingModal, isOpen: false })}
+        orderId={trackingModal.orderId}
+        orderNumber={trackingModal.orderNumber}
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Store, Building, MapPin, Plus } from 'lucide-react';
+import { Store, Building, MapPin, Plus, Tag } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSeller } from '@/hooks/useSeller';
 
 interface SellerModalProps {
@@ -31,6 +32,7 @@ const SellerModal = ({ isOpen, onClose }: SellerModalProps) => {
     price: '',
     image_url: '',
     quantity: '',
+    category: '',
   });
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
@@ -49,9 +51,10 @@ const SellerModal = ({ isOpen, onClose }: SellerModalProps) => {
       price: parseFloat(productData.price),
       image_url: productData.image_url,
       quantity: parseInt(productData.quantity),
+      category: productData.category,
     });
     if (success) {
-      setProductData({ name: '', description: '', price: '', image_url: '', quantity: '' });
+      setProductData({ name: '', description: '', price: '', image_url: '', quantity: '', category: '' });
       onClose();
     }
   };
@@ -214,6 +217,29 @@ const SellerModal = ({ isOpen, onClose }: SellerModalProps) => {
               placeholder="Enter quantity"
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category" className="flex items-center space-x-2">
+              <Tag className="h-4 w-4" />
+              <span>Category</span>
+            </Label>
+            <Select 
+              value={productData.category} 
+              onValueChange={(value) => handleProductChange('category', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="headphones">Headphones</SelectItem>
+                <SelectItem value="smart-home">Smart Home</SelectItem>
+                <SelectItem value="accessories">Accessories</SelectItem>
+                <SelectItem value="mobile">Mobile</SelectItem>
+                <SelectItem value="computers">Computers</SelectItem>
+                <SelectItem value="electronics">Electronics</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex space-x-2 pt-4">

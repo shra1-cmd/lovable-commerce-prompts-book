@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Navigation from '../components/Navigation';
-import { ShoppingCart, ArrowRight, Headphones, Home as HomeIcon, Watch } from 'lucide-react';
+import { ShoppingCart, ArrowRight, Headphones, Home as HomeIcon, Watch, Smartphone, Laptop, Gamepad2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -107,11 +107,14 @@ const Home = () => {
             <p className="text-gray-300 text-lg">Jump to your favorite products</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: Headphones, name: "Headphones", count: "12 Products" },
-              { icon: HomeIcon, name: "Smart Home", count: "8 Products" },
-              { icon: Watch, name: "Accessories", count: "15 Products" }
+              { icon: Headphones, name: "Headphones", count: "12 Products", category: "headphones" },
+              { icon: HomeIcon, name: "Smart Home", count: "8 Products", category: "smart-home" },
+              { icon: Watch, name: "Accessories", count: "15 Products", category: "accessories" },
+              { icon: Smartphone, name: "Mobile", count: "10 Products", category: "mobile" },
+              { icon: Laptop, name: "Computers", count: "6 Products", category: "computers" },
+              { icon: Gamepad2, name: "Electronics", count: "20 Products", category: "electronics" }
             ].map((category, index) => (
               <Link
                 key={category.name}

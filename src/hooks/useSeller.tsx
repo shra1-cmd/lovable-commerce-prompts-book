@@ -20,6 +20,7 @@ interface ProductData {
   price: number;
   image_url: string;
   quantity: number;
+  category: string;
 }
 
 export const useSeller = () => {
