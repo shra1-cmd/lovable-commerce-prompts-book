@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Navigation from '../components/Navigation';
-import { ShoppingCart, ArrowRight, Headphones, Home as HomeIcon, Watch, Smartphone, Laptop, Gamepad2 } from 'lucide-react';
+import { ShoppingCart, ArrowRight, Headphones, Home as HomeIcon, Watch, Smartphone, Laptop, Gamepad2, IndianRupee } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -80,9 +80,10 @@ const Home = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">{product.name}</h3>
                 <p className="text-gray-600 mb-4 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
-                    ${product.price}
-                  </span>
+                  <div className="flex items-center space-x-1 text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
+                    <IndianRupee className="h-5 w-5" />
+                    <span>{product.price}</span>
+                  </div>
                   <button 
                     onClick={() => handleAddToCart(product.id)}
                     className="group/btn relative px-4 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 hover:scale-105"
@@ -113,7 +114,7 @@ const Home = () => {
               { icon: HomeIcon, name: "Smart Home", count: "8 Products", category: "smart-home" },
               { icon: Watch, name: "Accessories", count: "15 Products", category: "accessories" },
               { icon: Smartphone, name: "Mobile", count: "10 Products", category: "mobile" },
-              { icon: Laptop, name: "Computers", count: "6 Products", category: "computers" },
+              { icon: Laptop, name: "Laptops", count: "6 Products", category: "computers" },
               { icon: Gamepad2, name: "Electronics", count: "20 Products", category: "electronics" }
             ].map((category, index) => (
               <Link
