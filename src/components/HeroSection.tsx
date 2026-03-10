@@ -39,7 +39,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ content, stats }) => {
         {/* Main Content */}
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            {content?.title || 'Reviving the Soul of'}{' '}
+            {content?.title || 'Reviving the Soul offfs'}{' '}
             <span className="text-orange-400">Bharat</span>
           </h1>
           
