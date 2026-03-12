@@ -182,6 +182,54 @@ export type Database = {
         }
         Relationships: []
       }
+      participants: {
+        Row: {
+          age: number | null
+          created_at: string
+          email: string
+          full_name: string
+          gender: string | null
+          id: string
+          interests: string[] | null
+          location: string | null
+          phone: string | null
+          programs_of_interest: string[] | null
+          registration_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          email: string
+          full_name: string
+          gender?: string | null
+          id?: string
+          interests?: string[] | null
+          location?: string | null
+          phone?: string | null
+          programs_of_interest?: string[] | null
+          registration_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          gender?: string | null
+          id?: string
+          interests?: string[] | null
+          location?: string | null
+          phone?: string | null
+          programs_of_interest?: string[] | null
+          registration_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       programs: {
         Row: {
           beneficiaries_count: number | null
@@ -293,6 +341,36 @@ export type Database = {
         }
         Relationships: []
       }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          subscribed_at: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       volunteers: {
         Row: {
           address: string | null
@@ -350,6 +428,39 @@ export type Database = {
         }
         Relationships: []
       }
+      website_contact: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          office_hours: string | null
+          phone: string | null
+          section_name: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          office_hours?: string | null
+          phone?: string | null
+          section_name?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          office_hours?: string | null
+          phone?: string | null
+          section_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       website_content: {
         Row: {
           content: Json
@@ -374,6 +485,111 @@ export type Database = {
           last_updated_by?: string | null
           section_name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      website_hero: {
+        Row: {
+          background_image_url: string | null
+          created_at: string
+          cta_primary: string | null
+          cta_secondary: string | null
+          description: string | null
+          id: string
+          section_name: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          background_image_url?: string | null
+          created_at?: string
+          cta_primary?: string | null
+          cta_secondary?: string | null
+          description?: string | null
+          id?: string
+          section_name?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          background_image_url?: string | null
+          created_at?: string
+          cta_primary?: string | null
+          cta_secondary?: string | null
+          description?: string | null
+          id?: string
+          section_name?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      website_mission: {
+        Row: {
+          created_at: string
+          id: string
+          mission_description: string | null
+          mission_title: string | null
+          section_name: string
+          updated_at: string
+          vision_description: string | null
+          vision_title: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mission_description?: string | null
+          mission_title?: string | null
+          section_name?: string
+          updated_at?: string
+          vision_description?: string | null
+          vision_title?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mission_description?: string | null
+          mission_title?: string | null
+          section_name?: string
+          updated_at?: string
+          vision_description?: string | null
+          vision_title?: string | null
+        }
+        Relationships: []
+      }
+      website_stats: {
+        Row: {
+          beneficiaries_count: number | null
+          created_at: string
+          events_count: number | null
+          id: string
+          programs_count: number | null
+          section_name: string
+          updated_at: string
+          volunteers_count: number | null
+        }
+        Insert: {
+          beneficiaries_count?: number | null
+          created_at?: string
+          events_count?: number | null
+          id?: string
+          programs_count?: number | null
+          section_name?: string
+          updated_at?: string
+          volunteers_count?: number | null
+        }
+        Update: {
+          beneficiaries_count?: number | null
+          created_at?: string
+          events_count?: number | null
+          id?: string
+          programs_count?: number | null
+          section_name?: string
+          updated_at?: string
+          volunteers_count?: number | null
         }
         Relationships: []
       }
