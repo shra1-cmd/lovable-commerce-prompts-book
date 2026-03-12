@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -350,161 +350,29 @@ export type Database = {
         }
         Relationships: []
       }
-      website_contact: {
+      website_content: {
         Row: {
-          address: string | null
-          created_at: string | null
-          email: string | null
-          id: string
-          office_hours: string | null
-          phone: string | null
-          section_name: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          address?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          office_hours?: string | null
-          phone?: string | null
-          section_name?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          address?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          office_hours?: string | null
-          phone?: string | null
-          section_name?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      website_hero: {
-        Row: {
-          created_at: string | null
-          cta_primary: string | null
-          cta_secondary: string | null
-          id: string
-          section_name: string | null
-          subtitle: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          cta_primary?: string | null
-          cta_secondary?: string | null
-          id?: string
-          section_name?: string | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          cta_primary?: string | null
-          cta_secondary?: string | null
-          id?: string
-          section_name?: string | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      website_mission: {
-        Row: {
-          created_at: string | null
-          id: string
-          mission_text: string | null
-          philosophy: string | null
-          section_name: string | null
-          updated_at: string | null
-          vision: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          mission_text?: string | null
-          philosophy?: string | null
-          section_name?: string | null
-          updated_at?: string | null
-          vision?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          mission_text?: string | null
-          philosophy?: string | null
-          section_name?: string | null
-          updated_at?: string | null
-          vision?: string | null
-        }
-        Relationships: []
-      }
-      website_stats: {
-        Row: {
-          created_at: string | null
-          id: string
-          programs_active: number | null
-          section_name: string | null
-          temples_revived: number | null
-          updated_at: string | null
-          villages: number | null
-          women_skilled: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          programs_active?: number | null
-          section_name?: string | null
-          temples_revived?: number | null
-          updated_at?: string | null
-          villages?: number | null
-          women_skilled?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          programs_active?: number | null
-          section_name?: string | null
-          temples_revived?: number | null
-          updated_at?: string | null
-          villages?: number | null
-          women_skilled?: number | null
-        }
-        Relationships: []
-      }
-      subscribers: {
-        Row: {
-          id: string
-          email: string
-          subscribed_at: string
-          is_active: boolean
-          unsubscribed_at: string | null
+          content: Json
           created_at: string
+          id: string
+          last_updated_by: string | null
+          section_name: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          email: string
-          subscribed_at?: string
-          is_active?: boolean
-          unsubscribed_at?: string | null
+          content: Json
           created_at?: string
+          id?: string
+          last_updated_by?: string | null
+          section_name: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          email?: string
-          subscribed_at?: string
-          is_active?: boolean
-          unsubscribed_at?: string | null
+          content?: Json
           created_at?: string
+          id?: string
+          last_updated_by?: string | null
+          section_name?: string
           updated_at?: string
         }
         Relationships: []
