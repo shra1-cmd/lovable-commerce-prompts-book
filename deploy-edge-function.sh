@@ -7,10 +7,10 @@ echo "🚀 Deploying create-donation Edge Function..."
 cd supabase
 
 # Deploy the function
-supabase functions deploy create-donation --project-ref qcfyyjwcxutxbljhgsbi
+supabase functions deploy create-donation --project-ref cpuuqugujovqgnnmdqqk
 
 echo "✅ Edge Function deployed successfully!"
-echo "📝 Function URL: https://qcfyyjwcxutxbljhgsbi.supabase.co/functions/v1/create-donation"
+echo "📝 Function URL: https://cpuuqugujovqgnnmdqqk.supabase.co/functions/v1/create-donation"
 echo ""
 echo "🔧 Next Steps:"
 echo "1. Set up environment variables in Supabase dashboard"
