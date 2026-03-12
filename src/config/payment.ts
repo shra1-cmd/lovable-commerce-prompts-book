@@ -5,8 +5,8 @@ export const PAYMENT_CONFIG = {
   RAZORPAY_LIVE_KEY: import.meta.env.VITE_RAZORPAY_LIVE_KEY || "rzp_test_3qZvN5LXUPhYQK",
   
   // Edge Function URLs
-  CREATE_ORDER_URL: "https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/create-order",
-  VERIFY_PAYMENT_URL: "https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/verify-payment",
+  CREATE_ORDER_URL: `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cpuuqugujovqgnnmdqqk'}.supabase.co/functions/v1/create-order`,
+  VERIFY_PAYMENT_URL: `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cpuuqugujovqgnnmdqqk'}.supabase.co/functions/v1/verify-payment`,
   
   // NGO Details
   NGO_NAME: "Garuda Dhhruvam Foundation",
