@@ -5,7 +5,7 @@ export const RAZORPAY_CONFIG = {
   LIVE_KEY_ID: import.meta.env.VITE_RAZORPAY_LIVE_KEY || "rzp_test_3qZvN5LXUPhYQK", // TODO: Replace with your actual live key
   
   // Supabase Edge Function URL - NEW CLOUD PROJECT
-  EDGE_FUNCTION_URL: "https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/create-donation",
+  EDGE_FUNCTION_URL: `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cpuuqugujovqgnnmdqqk'}.supabase.co/functions/v1/create-donation`,
   
   // NGO Details
   NGO_NAME: "Garuda Dhhruvam NGO",
