@@ -1,8 +1,8 @@
 // Payment Configuration
 export const PAYMENT_CONFIG = {
   // Razorpay Keys
-  RAZORPAY_TEST_KEY: import.meta.env.VITE_RAZORPAY_TEST_KEY || "rzp_test_3qZvN5LXUPhYQK",
-  RAZORPAY_LIVE_KEY: import.meta.env.VITE_RAZORPAY_LIVE_KEY || "rzp_test_3qZvN5LXUPhYQK",
+  RAZORPAY_TEST_KEY: import.meta.env.VITE_RAZORPAY_TEST_KEY || "rzp_test_SQCrzn9z0ZlvCa",
+  RAZORPAY_LIVE_KEY: import.meta.env.VITE_RAZORPAY_LIVE_KEY || "rzp_test_SQCrzn9z0ZlvCa",
   
   // Edge Function URLs
   CREATE_ORDER_URL: `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cpuuqugujovqgnnmdqqk'}.supabase.co/functions/v1/create-order`,

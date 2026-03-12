@@ -1,8 +1,8 @@
 // Razorpay Configuration
 export const RAZORPAY_CONFIG = {
   // Test Keys - Replace with your actual Razorpay keys
-  TEST_KEY_ID: import.meta.env.VITE_RAZORPAY_TEST_KEY || "rzp_test_3qZvN5LXUPhYQK",
-  LIVE_KEY_ID: import.meta.env.VITE_RAZORPAY_LIVE_KEY || "rzp_test_3qZvN5LXUPhYQK",
+  TEST_KEY_ID: import.meta.env.VITE_RAZORPAY_TEST_KEY || "rzp_test_SQCrzn9z0ZlvCa",
+  LIVE_KEY_ID: import.meta.env.VITE_RAZORPAY_LIVE_KEY || "rzp_test_SQCrzn9z0ZlvCa",
   
   // Supabase Edge Function URL
   EDGE_FUNCTION_URL: `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cpuuqugujovqgnnmdqqk'}.supabase.co/functions/v1/create-donation`,

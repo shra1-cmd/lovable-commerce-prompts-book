@@ -28,8 +28,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID') || 'rzp_test_3qZvN5LXUPhYQK';
-    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET') || 'demo_secret';
+    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID') || 'rzp_test_SQCrzn9z0ZlvCa';
+    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET') || 'OVT6c1Q2wYjA2D7HDTwkXYOL';
 
     // Create Razorpay order
     const receipt = `donation_${Date.now()}`;
