@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
     const order = await razorpayResponse.json();
 
     return new Response(
-      JSON.stringify({ success: true, order }),
+      JSON.stringify({ success: true, order, key_id: RAZORPAY_KEY_ID }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
