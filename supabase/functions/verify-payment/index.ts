@@ -31,7 +31,14 @@ Deno.serve(async (req) => {
     }
 
     // Verify signature using HMAC SHA256
-    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET') || 'OVT6c1Q2wYjA2D7HDTwkXYOL';
+    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET');
+
+    if (!RAZORPAY_KEY_SECRET) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Payment gateway is not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     const body = razorpay_order_id + '|' + razorpay_payment_id;
 
     const key = await crypto.subtle.importKey(

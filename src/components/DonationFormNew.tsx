@@ -70,17 +70,16 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
 
     try {
       // Step 1: Create Razorpay order securely via Edge Function
+      const normalizedPhone = form.phone.replace(/\D/g, '').slice(-10);
+
       const orderRequest: CreateOrderRequest = {
         amount: finalAmount,
         name: form.name,
         email: form.email,
-        phone: form.phone,
+        phone: normalizedPhone || undefined,
         purpose: form.purpose || "General Donation",
       };
 
-      console.log('Sending order request to:', PAYMENT_CONFIG.CREATE_ORDER_URL);
-      console.log('Request payload:', orderRequest);
-      
       const orderResponse = await fetch(PAYMENT_CONFIG.CREATE_ORDER_URL, {
         method: 'POST',
         headers: {
@@ -90,9 +89,6 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
         body: JSON.stringify(orderRequest),
       });
 
-      console.log('Response status:', orderResponse.status);
-      console.log('Response headers:', orderResponse.headers);
-
       if (!orderResponse.ok) {
         const errorText = await orderResponse.text();
         console.error('Edge function error:', errorText);
@@ -101,16 +97,22 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
       }
 
       const orderData = await orderResponse.json();
-      console.log('Order response:', orderData);
 
-      if (!orderData.success) {
-        alert(`❌ Failed to create order: ${orderData.error || 'Unknown error'}`);
+      if (!orderData.success || !orderData.order?.id || !orderData.order?.amount) {
+        alert(`❌ Failed to create order: ${orderData.error || 'Invalid order response'}`);
         return;
       }
 
+      if (!window.Razorpay) {
+        alert('❌ Payment SDK failed to load. Please refresh and try again.');
+        return;
+      }
+
+      const checkoutKey = orderData.key_id || PAYMENT_CONFIG.getKeyId();
+
       // Step 2: Configure Razorpay with the created order
       const options: PaymentOptions = {
-        key: PAYMENT_CONFIG.getKeyId(),
+        key: checkoutKey,
         amount: orderData.order.amount,
         currency: PAYMENT_CONFIG.CURRENCY,
         name: PAYMENT_CONFIG.NGO_NAME,
@@ -119,7 +121,7 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
         prefill: {
           name: form.name,
           email: form.email,
-          contact: form.phone,
+          contact: normalizedPhone || undefined,
         },
         notes: {
           purpose: form.purpose || "General Donation",
@@ -136,16 +138,15 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
               razorpay_signature: response.razorpay_signature,
               donor_name: form.name,
               donor_email: form.email,
-              donor_phone: form.phone,
+              donor_phone: normalizedPhone || undefined,
               amount: finalAmount,
               purpose: form.purpose || "General Donation",
               is_anonymous: form.is_anonymous,
             };
 
-            // Send to Supabase Edge Function for verification
             const res = await fetch(PAYMENT_CONFIG.VERIFY_PAYMENT_URL, {
               method: "POST",
-              headers: { 
+              headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
               },
@@ -153,20 +154,19 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
             });
 
             const data = await res.json();
-            
+
             if (data.success) {
               alert("✅ Thank you! Your donation was successful.");
               const donationData: DonationData = {
                 amount: parseInt(finalAmount),
                 donorName: form.name.trim(),
                 donorEmail: form.email.trim(),
-                donorPhone: form.phone.trim() || undefined,
+                donorPhone: normalizedPhone || undefined,
                 purpose: form.purpose.trim() || undefined,
                 isAnonymous: form.is_anonymous
               };
               onDonate(donationData);
             } else {
-              console.error('Donation failed:', data);
               const errorMessage = data.error || data.message || 'Unknown error occurred';
               alert(`❌ Payment failed: ${errorMessage}`);
             }
@@ -178,7 +178,6 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
         },
         modal: {
           ondismiss: function() {
-            console.log('Payment modal closed');
             setIsProcessing(false);
           }
         }
@@ -186,6 +185,11 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
 
       // Step 3: Open Razorpay checkout
       const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response: any) {
+        const reason = response?.error?.description || response?.error?.reason || 'Payment failed at gateway';
+        alert(`❌ ${reason}`);
+        setIsProcessing(false);
+      });
       rzp.open();
       
     } catch (error) {

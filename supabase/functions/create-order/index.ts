@@ -28,8 +28,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID') || 'rzp_test_SQCrzn9z0ZlvCa';
-    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET') || 'OVT6c1Q2wYjA2D7HDTwkXYOL';
+    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID');
+    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET');
+
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Payment gateway is not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Create Razorpay order
     const receipt = `donation_${Date.now()}`;
@@ -66,7 +73,7 @@ Deno.serve(async (req) => {
     const order = await razorpayResponse.json();
 
     return new Response(
-      JSON.stringify({ success: true, order }),
+      JSON.stringify({ success: true, order, key_id: RAZORPAY_KEY_ID }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

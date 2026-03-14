@@ -87,6 +87,7 @@ export interface CreateOrderResponse {
     receipt: string;
     status: string;
   };
+  key_id?: string;
   error?: string;
 }
 
