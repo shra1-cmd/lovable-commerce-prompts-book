@@ -1,0 +1,1 @@
+CREATE POLICY "Public can insert donations" ON public.donations FOR INSERT TO public WITH CHECK (true);
